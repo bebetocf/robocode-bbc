@@ -6,6 +6,7 @@ public class Action {
     private int        type;
     private double     parameter;
     private int        priority;
+    private long       time;
 
     private AdvancedRobot robot;   // Reference to the bot who will execute the action
 
@@ -20,14 +21,14 @@ public class Action {
     public static final int GUN_RIGHT=9;
     public static final int GUN_LEFT=10;
 
-
     public Action() {
     }
 
-    public Action(int type, double parameter, int priority) {
-        this.type = type;
-        this.parameter = parameter;
-        this.priority = priority;
+    public Action(int _type, double _parameter, int _priority, long _time) {
+        this.type = _type;
+        this.time = _time;
+        this.parameter = _parameter;
+        this.priority = _priority;
     }
 
     public double getParameter() {
@@ -54,9 +55,15 @@ public class Action {
         this.priority = priority;
     }
 
+    public long getTime() {
+		return time;
+	}
 
+	public void setTime(long time) {
+		this.time = time;
+	}
 
-    public void initExecution() {
+	public void initExecution() {
         if (this.robot != null) {
             switch (this.type) {
                 case Action.SHOOT: robot.setFire(parameter); break;
@@ -91,7 +98,7 @@ public class Action {
                 case Action.TANK_RIGHT: strType="Tank Right"; break;
                 case Action.TANK_LEFT: strType="Tank Left"; break;
             }
-	return "Action[type:"+strType+", parameter:"+parameter+", priority:"+priority+"]";
+	return "Action[type:"+strType+", parameter:"+parameter+", priority:"+priority+", Time:"+time+"]";
     }
 
 }

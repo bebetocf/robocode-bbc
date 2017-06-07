@@ -2,7 +2,6 @@ package bbc;
 
 import java.util.Vector;
 import java.awt.Color;
-import java.awt.geom.Point2D;
 import org.drools.KnowledgeBase;
 import org.drools.KnowledgeBaseFactory;
 import org.drools.builder.KnowledgeBuilder;
@@ -35,7 +34,6 @@ public class Marreta extends AdvancedRobot {
 
     
     public Marreta(){
-    	// Nothing in constructor
     }
     
 
@@ -46,11 +44,11 @@ public class Marreta extends AdvancedRobot {
     	createKnowledgeBase();
     	
         // COLORS
-        setBodyColor(Color.blue);
-        setGunColor(Color.white);
-        setRadarColor(Color.red);
-        setScanColor(Color.white);
-        setBulletColor(Color.red);
+        setBodyColor(Color.black);
+        setGunColor(Color.red);
+        setRadarColor(Color.black);
+        setScanColor(Color.green);
+        setBulletColor(Color.white);
 
         // Make any movement from tank, radar or gun independent
         setAdjustGunForRobotTurn(true);

@@ -1,6 +1,6 @@
 package bbc;
 
-import robocode.AdvancedRobot;
+import robocode.*;
 
 public class RobotState {
     private final double distanceRemaining;
@@ -107,7 +107,5 @@ public class RobotState {
     	return "State(x:"+x+", y:"+y+", velocity:"+velocity+
     	                     ", energy:"+energy+", heading:"+heading+
     	                     ", distanceRemaining:"+distanceRemaining+")";
-    	
     }
-
 }
