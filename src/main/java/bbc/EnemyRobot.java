@@ -4,6 +4,13 @@ import robocode.*;
 public class EnemyRobot{
 	double x, y, bearing, energy, velocity, heading, distance;
 	String name;
+	long time;
+	public long getTime() {
+		return time;
+	}
+	public void setTime(long time) {
+		this.time = time;
+	}
 	public double getX() {
 		return x;
 	}
@@ -62,9 +69,11 @@ public class EnemyRobot{
 		this.energy = event.getEnergy();
 		this.heading = event.getHeading();
 		this.velocity = event.getVelocity();
+		this.time=0;
 	}
 	
 	public void update (ScannedRobotEvent event, Robot robot){
+		setTime(robot.getTime());
 		update(event);
 		double absAngle = (robot.getHeading() + event.getBearing());
 		if (absAngle < 0) absAngle += 360;
@@ -81,5 +90,6 @@ public class EnemyRobot{
 		this.velocity = 0;
 		this.x = 0;
 		this.y = 0;
+		this.time = 0;
 	}
 }
