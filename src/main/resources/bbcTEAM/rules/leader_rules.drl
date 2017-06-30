@@ -63,6 +63,16 @@ rule "WHEN a victim dies retract victim"
 		retract($enemy);
 end
 
+rule "WHEN a friend dies retract victim"
+	salience 119
+	when
+		$dead: RobotDeathEvent()
+		$status: Status()
+		not exists ($enemy: EnemyRobot(name==$dead.getName()))
+	then
+		EnemyPos.remove($dead.getName());
+end
+
 rule "WHEN target dies, retract target"
 	salience 118
 	when
