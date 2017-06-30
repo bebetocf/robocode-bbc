@@ -68,7 +68,7 @@ rule "WHEN a friend dies retract victim"
 	when
 		$dead: RobotDeathEvent()
 		$status: Status()
-		not exists ($enemy: EnemyRobot(name==$dead.getName()))
+		not (exists EnemyRobot(name==$dead.getName()))
 	then
 		EnemyPos.remove($dead.getName());
 end
