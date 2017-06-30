@@ -3,8 +3,11 @@ package bbcTEAM
 import bbcTEAM.*;
 import robocode.*;
 import robocode.ScannedRobotEvent;
+import java.util.HashMap;
 
 //global Map<String,EnemyRobot>mapTest = new HashMap<String,EnemyRobot>();
+
+global Map<String,EnemyRobot> Enemies;
 
 query "consult_actions"
   action: Action()

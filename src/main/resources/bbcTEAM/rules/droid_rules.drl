@@ -3,8 +3,11 @@ package bbcTEAM
 import bbcTEAM.*;
 import robocode.*;
 import robocode.ScannedRobotEvent;
+import java.util.HashMap;
 
 //global Map<String,EnemyRobot>mapTest = new HashMap<String,EnemyRobot>();
+
+global Map<String,EnemyRobot> Enemies;
 
 query "consult_actions"
   action: Action()
@@ -89,6 +92,7 @@ rule "WHEN a victim dies retract victim"
 		$victim: Victim(name==$dead.getName())
 	then
 		
+		if (Enemies.containsKey($dead.getName()) == true) Enemies.remove($dead.getName());
 	    $status.setFound($status.getFound()-1);
 		retract($victim);
 end
@@ -104,10 +108,6 @@ rule "WHEN target dies, retract target"
 end
 
 
-
-
-
-
 rule "WHEN no status THEN create one"
 	salience 100
 	when
@@ -116,6 +116,7 @@ rule "WHEN no status THEN create one"
 	then
 		Status status = new Status();
 		status.setMoveDirection(1);
+		status.setScanDirection(1);
 		status.setFound(0);
 	    insert(status);
 	    System.out.println("Internal status created.");
@@ -153,7 +154,7 @@ end
 rule "WHEN found a new victim, then update it."
 	salience 89
 	when
-		$scanned: ScannedRobotEvent()
+		$scanned: ScannedRobotEvent(name not contains "time")
 		$status : Status()
 		$state: RobotState()
 		not (exists Victim(name == $scanned.getName()))
@@ -176,7 +177,7 @@ rule "WHEN found a new victim, then update it."
 		victim.setBulletSpeed(bulletSpeed);
 		long time = Helper.time($scanned.getDistance(), bulletSpeed);
 		victim.setTime(time);
-		insert(victim);
+		insert(victim);		
   		System.out.println("Victim created."+$scanned.getName());
 	    System.out.println("Planned bullet : Power = "+ firePower +" Speed = "+ bulletSpeed +" Time = "+ time);
 end

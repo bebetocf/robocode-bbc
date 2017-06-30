@@ -41,11 +41,42 @@ public class EnemyRobot{
 	public String getName() {
 		return name;
 	}
+	public void setDistance(double x, double y)
+	{
+		this.distance = Helper.distance(this.x,this.y,x,y);
+	}
+	public double getFirePower()
+	{
+		return Helper.firePower(this.distance);
+	}
+	public double getBulletSpeed()
+	{
+		return Helper.bulletSpeed(Helper.firePower(this.distance));
+	}
+	public long getTimeToTarget()
+	{
+		return Helper.time(this.distance, this.getBulletSpeed());
+	}
 	
 	public EnemyRobot() {
 		reset();
 	}
+	public EnemyRobot(ScannedRobotEvent event) {
+		this.update(event);
+	}
+	public EnemyRobot(ScannedRobotEvent event, RobotState state) {
+		this.update(event, state);
+	}
+	public void update(ScannedRobotEvent event, RobotState state) {
+		this.update(event);
 
+		//double absAngle = (state.getHeading() + event.getBearing());
+		//if (absAngle < 0) absAngle += 360;
+		this.x = Helper.enemyX(state.getX(), state.getHeading(), event.getBearing(), event.getDistance());
+		this.y = Helper.enemyY(state.getY(), state.getHeading(), event.getBearing(), event.getDistance());
+		//System.out.println("Enemy position:" + this.getX() + " " + this.getY());
+	}
+	
 	public boolean noEnemy() {
 		if (this.name.equals("")) {
 			return true;
@@ -57,11 +88,23 @@ public class EnemyRobot{
 	public double getFutureX(long _time){
 		return this.x + Math.sin(Math.toRadians(this.heading)) * this.velocity * _time;
 	}
-
+	public double getFutureX(){
+		return Helper.enemyFutureX(this.getX(), this.getHeading(), this.getVelocity(), this.getTimeToTarget());
+	}
+	
 	public double getFutureY(long _time){
 		return this.y + Math.cos(Math.toRadians(this.heading)) * this.velocity * _time;
 	}
-	
+	public double getFutureY(){
+		return Helper.enemyFutureY(this.getY(), this.getHeading(), this.getVelocity(), this.getTimeToTarget());
+	}
+	public boolean isUpdated(long time){
+		return time>(16 + this.time);
+	}
+	public void print()
+	{
+		System.out.println("Name : " + this.getName() + " time:"+ this.getTime());
+	}
 	public void update(ScannedRobotEvent event){
 		this.name = event.getName();
 		this.bearing = event.getBearing();
@@ -69,11 +112,10 @@ public class EnemyRobot{
 		this.energy = event.getEnergy();
 		this.heading = event.getHeading();
 		this.velocity = event.getVelocity();
-		this.time=0;
+		this.time=event.getTime();
 	}
 	
 	public void update (ScannedRobotEvent event, Robot robot){
-		setTime(robot.getTime());
 		update(event);
 		double absAngle = (robot.getHeading() + event.getBearing());
 		if (absAngle < 0) absAngle += 360;

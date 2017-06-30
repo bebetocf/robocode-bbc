@@ -11,7 +11,9 @@ import org.drools.io.ResourceFactory;
 import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.FactHandle;
 import org.drools.runtime.rule.QueryResultsRow;
+
 import robocode.*;
+import java.util.HashMap;
 
 
 public class MarretaLeader extends TeamRobot {
@@ -100,6 +102,8 @@ public class MarretaLeader extends TeamRobot {
         
         DEBUG.message("Creating session)");
         ksession = kbase.newStatefulKnowledgeSession();
+      //Insere uma HashMap na memória de trabalho
+        ksession.setGlobal("Enemies", new HashMap<String,EnemyRobot>());
     }
 
 

@@ -1,5 +1,6 @@
 package bbcTEAM;
 
+import java.util.HashMap;
 import java.util.Vector;
 import java.awt.Color;
 import java.io.IOException;
@@ -101,6 +102,9 @@ public class MarretaDroid extends TeamRobot implements Droid {
         
         DEBUG.message("Creating session)");
         ksession = kbase.newStatefulKnowledgeSession();
+        
+      //Insere uma HashMap na memória de trabalho
+        ksession.setGlobal("Enemies", new HashMap<String,EnemyRobot>());
     }
 
 
