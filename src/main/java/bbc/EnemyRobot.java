@@ -5,6 +5,14 @@ public class EnemyRobot{
 	double x, y, bearing, energy, velocity, heading, distance;
 	String name;
 	long time;
+	boolean leader;
+	public void setLeader(boolean leader) {
+		this.leader = leader;
+	}
+	public boolean isLeader() {
+		return leader;
+	}
+
 	public long getTime() {
 		return time;
 	}
@@ -61,12 +69,19 @@ public class EnemyRobot{
 	public EnemyRobot() {
 		reset();
 	}
+
 	public EnemyRobot(ScannedRobotEvent event) {
 		this.update(event);
+		if(event.getEnergy()<=100)this.leader=true;
+		else this.leader=false;
 	}
+	
 	public EnemyRobot(ScannedRobotEvent event, RobotState state) {
 		this.update(event, state);
+		if(event.getEnergy()<=100)this.leader=true;
+		else this.leader=false;
 	}
+	
 	public void update(ScannedRobotEvent event, RobotState state) {
 		this.update(event);
 
@@ -133,5 +148,15 @@ public class EnemyRobot{
 		this.x = 0;
 		this.y = 0;
 		this.time = 0;
+		this.leader=false;
+	}
+	public boolean isBetter(EnemyRobot other)
+	{
+		if(other.isLeader() && !this.isLeader())return false;
+		else if(this.isLeader() && !other.isLeader())return true;
+		else
+		{
+			return this.getDistance() < other.getDistance();
+		}
 	}
 }
