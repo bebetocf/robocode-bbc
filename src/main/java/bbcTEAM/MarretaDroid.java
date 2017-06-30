@@ -185,5 +185,6 @@ public class MarretaDroid extends TeamRobot implements Droid {
     
     public void onMessageReceived(MessageEvent event){
     	System.out.println(((EnemyRobot)event.getMessage()).getName());
+    	currentReferencedFacts.add(ksession.insert(event));
     }
 }
