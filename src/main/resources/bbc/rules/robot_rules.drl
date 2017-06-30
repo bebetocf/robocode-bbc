@@ -3,6 +3,11 @@ package bbc
 import bbc.*;
 import robocode.*;
 import robocode.ScannedRobotEvent;
+import java.util.HashMap;
+import java.awt.geom.Point2D;
+import java.util.Set;
+
+global HashMap<String,GravitationalPoint> EnemyPos;
 
 //global Map<String,EnemyRobot>mapTest = new HashMap<String,EnemyRobot>();
 
@@ -89,6 +94,7 @@ rule "WHEN a victim dies retract victim"
 		$victim: Victim(name==$dead.getName())
 	then
 		
+		if (EnemyPos.containsKey($dead.getName()) == true) EnemyPos.remove($dead.getName());
 	    $status.setFound($status.getFound()-1);
 		retract($victim);
 end
@@ -116,6 +122,7 @@ rule "WHEN no status THEN create one"
 	then
 		Status status = new Status();
 		status.setMoveDirection(1);
+		status.setScanDirection(1);
 		status.setFound(0);
 	    insert(status);
 	    System.out.println("Internal status created.");
@@ -177,6 +184,11 @@ rule "WHEN found a new victim, then update it."
 		long time = Helper.time($scanned.getDistance(), bulletSpeed);
 		victim.setTime(time);
 		insert(victim);
+		
+		GravitationalPoint p = new GravitationalPoint(enemyX,enemyY,$scanned.getEnergy());
+		
+		EnemyPos.put($scanned.getName(),p);
+		
   		System.out.println("Victim created."+$scanned.getName());
 	    System.out.println("Planned bullet : Power = "+ firePower +" Speed = "+ bulletSpeed +" Time = "+ time);
 end
@@ -205,6 +217,11 @@ rule "WHEN new turn and detected old victim THEN update victim's informations"
 		$victim.setBulletSpeed(bulletSpeed);
 		long time = Helper.time($scanned.getDistance(), bulletSpeed);
 		$victim.setTime($status.getTime());
+		
+		GravitationalPoint p = new GravitationalPoint(enemyX,enemyY,$scanned.getEnergy());
+		
+		EnemyPos.put($scanned.getName(),p);
+		
 		//update($victim);
 	    System.out.println("Updated victim informations."+$scanned.getName());
 end
@@ -265,11 +282,35 @@ rule "WHEN detected closer victim than old one THEN update to new victim"
 		$victim.setBulletSpeed(bulletSpeed);
 		long time = Helper.time($scanned.getDistance(), bulletSpeed);
 		$victim.setTime(time);
-	    System.out.println("Closer victim detected and targetted");
+		
+		GravitationalPoint p = new GravitationalPoint(enemyX,enemyY,$scanned.getEnergy());
+		
+		EnemyPos.put($scanned.getName(),p);
+		
+	    System.out.println("Closer victim detected and targeted");
 end
 */
 
 // ========== RADAR TURNING RULES ==========
+
+rule "WHEN there is a robot that is hasnt been scaned in a while"
+	salience 81
+	when
+		//not (exists ScannedRobotEvent())
+		$state : RobotState()
+		$status : Status()
+		$victim : Victim(time<($state.getTime()-16) ) 
+	then
+		//double angle = Helper.relativeAngle($victim.getBearing() + $state.getHeading() , $state.getRadarHeading());
+		//double angle = Helper.relativeAngle($victim.getBearing() + $state.getHeading() , $state.getRadarHeading());
+		//$status.setScanDirection(Helper.sign(angle));
+
+		insert(new Action(Action.RADAR_RIGHT, 360*$status.getScanDirection(), 1, $state.getTime()));
+		//retract($victim);
+		//$status.SetFound($status.getFound()-1);
+		//update($status);
+		System.out.println("Removed old victim and set direction to:" +  $status.getScanDirection());
+end
 
 rule "WHEN missing robot then complete turn"
 	salience 80
@@ -279,23 +320,8 @@ rule "WHEN missing robot then complete turn"
 		$status : Status()
 		eval($status.getFound() < $state.getOthers())  
 	then
-		insert(new Action(Action.RADAR_RIGHT, 360, 1, $state.getTime()));
-		$status.setScanDirection(1);
-		System.out.println("Radar complete turn initialized"+ ($status.getFound() < $state.getOthers()) );
-end
-
-rule "WHEN there is a robot that is hasnt been scaned in a while"
-	salience 80
-	when
-		//not (exists ScannedRobotEvent())
-		$state : RobotState()
-		$status : Status()
-		$victim : Victim(time<($state.getTime()-16) ) 
-	then
-		//double angle = Helper.relativeAngle($victim.getBearing() + $state.getHeading() , $state.getRadarHeading());
+		insert(new Action(Action.RADAR_RIGHT, 360* $status.getScanDirection(), 1, $state.getTime()));
 		
-		insert(new Action(Action.RADAR_RIGHT, 360, 1, $state.getTime()));
-		$status.setScanDirection(1);
 		System.out.println("Radar complete turn initialized"+ ($status.getFound() < $state.getOthers()) );
 end
 
@@ -324,10 +350,11 @@ rule "WHEN exists victim THEN set gun to predicted position"
 		$state : RobotState()
 		Target(name==$victim.getName())
 	then
-		double futureX = Helper.enemyFutureX($victim.getX(), $victim.getHeading(), $victim.getVelocity(), $victim.getTime());
-		double futureY = Helper.enemyFutureY($victim.getY(), $victim.getHeading(), $victim.getVelocity(), $victim.getTime());
-		double absDeg = Helper.absoluteBearing($status.getX(), $status.getY(), futureX, futureY);
-		double finalAngle = Helper.normalizeBearing(absDeg - $status.getGunHeading());
+		long time = Helper.time(Helper.distance($state.getX(), $state.getY(), $victim.getX(), $victim.getY()), $victim.getBulletSpeed());
+		double futureX = Helper.enemyFutureX($victim.getX(), $victim.getHeading(), $victim.getVelocity(), time);
+		double futureY = Helper.enemyFutureY($victim.getY(), $victim.getHeading(), $victim.getVelocity(), time);
+		double absDeg = Helper.absoluteBearing($state.getX(), $state.getY(), futureX, futureY);
+		double finalAngle = Helper.normalizeBearing(absDeg - $state.getGunHeading());
 		insert(new Action(Action.GUN_RIGHT, finalAngle, 1, $state.getTime()));
 	    System.out.println("Victim's next position predicted, aiming.....");
 end
@@ -337,12 +364,11 @@ end
 rule "WHEN gun is cool and on target THEN FIRE"
 	salience 68
 	when
-		$victim: Victim()
-		Target(name==$victim.getName())
-		$status: Status()
-		$state: RobotState()
+		$target: Target()
+		$state : RobotState()
 		eval($state.getGunHeat() == 0.0)
 		eval($state.getGunTurnRemaining() < 10)
+		$victim : Victim (name == $target.name)
 	then
 		insert(new Action(Action.SHOOT, $victim.getFirePower(), 1, $state.getTime()));
 	    System.out.println("AND ..... FIIIIIIRRREEEEEEE");
@@ -350,52 +376,55 @@ end
 
 // ========== MOVING RULES ==========
 
-rule "WHEN no victim THEN random moves" // random moves based on "crazy" source
+//Função para a movimentação
+
+rule "Robot moves according with gravitational rules"
 	salience 60
 	when
-		not(exists Victim())
-		$state: RobotState()
-		$status: Status()
-	then
-		insert(new Action(Action.AHEAD, 1000, 1, $state.getTime()));
-		double angle = 360 * Math.random() - 180;
-		insert(new Action(Action.TANK_RIGHT, angle, 1, $state.getTime()));
-	    System.out.println("Random move initialized");
-end
-
-rule "WHEN stopped THEN switch move direction"
-	salience 59
-	when
 		$state : RobotState()
 		$status : Status()
-		eval($status.getVelocity() == 0)
+		$battlestate: BattleState()
+		eval($status.getTime() % 11 == 0)
 	then
-		$status.setMoveDirection(-1 * $status.getMoveDirection());
-		//$status.setVelocity(100);
-	    System.out.println("Switch move direction.");
-end
+		
+		double xforce = 0;
+    	double yforce = 0;
+    	double dist = 300;
+    	double force = 0;
+    	double ang = 0;
+    	
+    	double posx = 0;
+    	double posy = 0;
+	    
+	    if (!(EnemyPos.isEmpty())) {
+		   	Set<String> x = EnemyPos.keySet();
+		   	
+		   	for (String s : x) {
+		   		GravitationalPoint p = (GravitationalPoint)EnemyPos.get(s);
+		   		force = p.power/Math.pow(Helper.distance($status.getX(),$status.getY(),p.x,p.y),2);
+	        	ang = Helper.normalizeBearing(Math.PI/2 - Math.atan2($status.getY() - p.y, $status.getX() - p.x)); 
+	        	xforce += Math.sin(ang) * force;
+	        	yforce += Math.cos(ang) * force;
+		   	}
+		}
+	    	
+	   	xforce += 5000/Math.pow(Helper.distance($state.getX(), $state.getY(), $battlestate.getFieldWidth(), $state.getY()), 3);
+	   	xforce -= 5000/Math.pow(Helper.distance($state.getX(), $state.getY(), 0, $state.getY()), 3);
+	   	yforce += 5000/Math.pow(Helper.distance($state.getX(), $state.getY(), $state.getX(), $battlestate.getFieldHeight()), 3);
+	   	yforce -= 5000/Math.pow(Helper.distance($state.getX(), $state.getY(), $state.getX(), 0), 3);
+		
+		posx = $state.getX() - xforce;
+		posy = $state.getY() - yforce;
+		
+		double angle = Math.toDegrees(Helper.absoluteAngle($state.getX(),$state.getY(),posx,posy));
+		angle = Helper.RobotAngleForGravitationalPoints ($state.getHeading(), angle);
+		
+		double r = Helper.DirectionforTheRobot (angle);
+		angle = Helper.RobotAngleModifiedForGravitationalPoints (angle);
+		
+		insert(new Action(Action.TANK_LEFT, angle, 1, $state.getTime()+7));
+		insert(new Action(Action.AHEAD, dist*r, 1, $state.getTime()+7));
+		
+		System.out.println("Moving initialized");
 
-rule "WHEN 20 turns passed THEN switch move direction"
-	salience 58
-	when
-		$state : RobotState()
-		$status : Status()
-		eval($status.getTime() % 20 == 0)
-	then
-		$status.setMoveDirection(-1 * $status.getMoveDirection());
-	    System.out.println("Switch move direction.");
-end
-
-rule "WHEN victim is set THEN circling"
-	salience 57
-	when
-		$victim: Victim()
-		$status: Status()
-		$state: RobotState()
-		Target(name==$victim.getName())
-	then
-		double angle = Helper.normalizeBearing($victim.getBearing() + 90 - (15 * $status.getMoveDirection()));
-		insert(new Action(Action.TANK_RIGHT, angle, 1, $state.getTime()));
-		insert(new Action(Action.AHEAD, (1000 * $status.getMoveDirection()), 1, $state.getTime()));
-	    System.out.println("Circling");
 end

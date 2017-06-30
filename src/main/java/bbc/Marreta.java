@@ -12,6 +12,7 @@ import org.drools.runtime.StatefulKnowledgeSession;
 import org.drools.runtime.rule.FactHandle;
 import org.drools.runtime.rule.QueryResultsRow;
 import robocode.*;
+import java.util.HashMap;
 
 
 public class Marreta extends AdvancedRobot {
@@ -100,6 +101,9 @@ public class Marreta extends AdvancedRobot {
         
         DEBUG.message("Creating session)");
         ksession = kbase.newStatefulKnowledgeSession();
+        
+      //Insere uma HashMap na memória de trabalho
+        ksession.setGlobal("EnemyPos", new HashMap<String,GravitationalPoint>());
     }
 
 
