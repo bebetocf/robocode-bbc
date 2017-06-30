@@ -8,7 +8,7 @@ import java.awt.geom.*;
 
 import robocode.*;
 
-public class EnemyRobot extends Point2D.Double{
+public class EnemyRobot implements Serializable{
 	double x, y, bearing, energy, velocity, heading, distance;
 	String name;
 	long time;

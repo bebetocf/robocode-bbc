@@ -54,10 +54,13 @@ rule "WHEN a victim dies retract victim"
 		$status: Status()
 		$enemy: EnemyRobot(name==$dead.getName())
 	then
-		// EnemyPos.remove($dead.getName());
+		//EnemyPos.remove($dead.getName());
 	    $status.setFound($status.getFound()-1);
 		// retract($enemy);
-		$enemy.setDistance(1000000, 1000000);
+		$enemy.setDistance(100000000000.0, 100000000000.0);
+		$enemy.setX(100000000000.0);
+		$enemy.setY(100000000000.0);
+		$enemy.setLeader(false);
 end
 
 rule "WHEN a victim and target dies retract victim"
@@ -69,11 +72,14 @@ rule "WHEN a victim and target dies retract victim"
 		$enemy: EnemyRobot(name==$dead.getName())
 		$enemy2: EnemyRobot(name!=$dead.getName())
 	then
-		// EnemyPos.remove($dead.getName());
+		//EnemyPos.remove($dead.getName());
 	    $status.setFound($status.getFound()-1);
 		// retract($enemy);
 		$target.setName($enemy2.getName());
-		$enemy.setDistance(1000000, 1000000);
+		$enemy.setDistance(100000000000.0, 100000000000.0);
+		$enemy.setX(100000000000.0);
+		$enemy.setY(100000000000.0);
+		$enemy.setLeader(false);
 end
 /*
 rule "WHEN target dies, retract target"
@@ -136,7 +142,6 @@ rule "WHEN new turn and detected old victim THEN update victim's informations"
 	then
 		$enemy.print();
 		$enemy.update( $scanned, $state );
-		
 		GravitationalPoint p = new GravitationalPoint($enemy.getX(),$enemy.getY(),$enemy.getEnergy());
 		
 		EnemyPos.put($enemy.getName(),p);
@@ -229,8 +234,9 @@ rule "WHEN gun is cool and on target THEN FIRE"
 		eval($state.getGunTurnRemaining() < 10)
 		$enemy : EnemyRobot (name == $target.name)
 	then
-		insert(new Action(Action.SHOOT, $enemy.getFirePower(), 1, $state.getTime()));
-	    insert(new Action(Action.SHOOT, $enemy.getFirePower(), 1, $state.getTime()));
+		double fire = $enemy.getFirePower();
+		if($enemy.isLeader())fire=4;
+		insert(new Action(Action.SHOOT, fire, 1, $state.getTime()));
 	    
 	    System.out.println("AND ..... FIIIIIIRRREEEEEEE");
 end
