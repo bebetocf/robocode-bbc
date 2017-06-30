@@ -103,7 +103,7 @@ public class MarretaLeader extends TeamRobot {
         DEBUG.message("Creating session)");
         ksession = kbase.newStatefulKnowledgeSession();
       //Insere uma HashMap na memória de trabalho
-        ksession.setGlobal("Enemies", new HashMap<String,EnemyRobot>());
+        ksession.setGlobal("EnemyPos", new HashMap<String,GravitationalPoint>());
     }
 
 

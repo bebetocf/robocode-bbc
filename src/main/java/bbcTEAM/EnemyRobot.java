@@ -13,6 +13,7 @@ public class EnemyRobot extends Point2D.Double{
 	String name;
 	long time;
 	boolean leader;
+	boolean isTeammate = false;
 	public void setLeader(boolean leader) {
 		this.leader = leader;
 	}
@@ -87,6 +88,12 @@ public class EnemyRobot extends Point2D.Double{
 		this.update(event, state);
 		if(event.getEnergy()<=100)this.leader=true;
 		else this.leader=false;
+	}
+	public EnemyRobot(ScannedRobotEvent event, RobotState state, boolean team) {
+		this.update(event, state);
+		if(event.getEnergy()<=100)this.leader=true;
+		else this.leader=false;
+		this.isTeammate = team;
 	}
 	
 	public void update(ScannedRobotEvent event, RobotState state) {
