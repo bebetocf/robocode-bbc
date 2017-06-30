@@ -104,7 +104,7 @@ public class MarretaDroid extends TeamRobot implements Droid {
         ksession = kbase.newStatefulKnowledgeSession();
         
       //Insere uma HashMap na memória de trabalho
-        ksession.setGlobal("Enemies", new HashMap<String,EnemyRobot>());
+        ksession.setGlobal("EnemyPos", new HashMap<String,GravitationalPoint>());
     }
 
 

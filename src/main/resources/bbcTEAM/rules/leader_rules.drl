@@ -140,7 +140,7 @@ rule "WHEN found a new friend, add it to the Hash"
 		
 		EnemyPos.put($scanned.getName(),p);
 		
-		insert(new Action(Action.BROADCAST, new EnemyRobot($scanned,$state, true), 1, $state.getTime()));
+		insert(new Action(Action.BROADCAST, new EnemyRobot($scanned,$state), 1, $state.getTime()));
 		
   		System.out.println("Victim created."+$scanned.getName());
 end
@@ -183,7 +183,7 @@ rule "WHEN new turn and detected old friend THEN update friend's informations"
 		
 		System.out.println("Updated victim informations."+$scanned.getName());
 		
-		insert(new Action(Action.BROADCAST, new EnemyRobot($scanned,$state, true), 1, $state.getTime()));
+		insert(new Action(Action.BROADCAST, new EnemyRobot($scanned,$state), 1, $state.getTime()));
 end
 
 rule "WHEN new turn there is no target and there is a victim, create new target"

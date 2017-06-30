@@ -1,8 +1,8 @@
 package bbcTEAM;
 import java.io.Serializable;
 
-import bbc.Helper;
-import bbc.RobotState;
+import bbcTEAM.Helper;
+import bbcTEAM.RobotState;
 
 import java.awt.geom.*;
 
@@ -91,6 +91,7 @@ public class EnemyRobot extends Point2D.Double{
 		if(event.getEnergy()<=100)this.leader=true;
 		else this.leader=false;
 	}
+	
 	public EnemyRobot(ScannedRobotEvent event, RobotState state, boolean team) {
 		this.update(event, state);
 		if(event.getEnergy()<=100)this.leader=true;
@@ -103,6 +104,7 @@ public class EnemyRobot extends Point2D.Double{
 		else this.leader=false;
 	}
 	public void update(MessageEvent event,RobotState state) {
+		//System.out.println(event);
 		EnemyRobot enemy = ((EnemyRobot)event.getMessage());
 		this.setX(enemy.getX());
 		this.setY(enemy.getY());
