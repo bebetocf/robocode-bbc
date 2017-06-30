@@ -105,5 +105,24 @@ public class Helper {
     public static double enemyFutureY(double enemyY, double enemyHeading, double velocity, long _time){
     	return (enemyY + Math.cos(Math.toRadians(enemyHeading)) * velocity * _time);
     }
+    
+    //Função que calcula o ângulo para pontos gravitacionais
+    public static double RobotAngleForGravitationalPoints (double heading, double angle) {
+    	double ang;
+    	ang = normalizeBearing(heading - angle);
+    	return ang;    	
+    }
+    //Normaliza o ângulo para pontos gravitacionais
+    public static double RobotAngleModifiedForGravitationalPoints (double ang) {
+    	if (ang > 90) ang -= 180;
+        else if (ang < -90) ang += 180;
+    	return ang;
+    }
+    //Seta a direção que o robô deve ir
+    public static int DirectionforTheRobot (double ang) {
+    	int dir = 1;
+    	if ((ang > 90) || (ang < -90)) dir = -1;
+    	return dir;
+    }
 
 }

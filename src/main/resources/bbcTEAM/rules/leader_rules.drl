@@ -1,6 +1,6 @@
-package bbc
+package bbcTEAM
 
-import bbc.*;
+import bbcTEAM.*;
 import robocode.*;
 import robocode.ScannedRobotEvent;
 import java.util.HashMap;

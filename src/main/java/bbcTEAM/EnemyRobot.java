@@ -77,7 +77,9 @@ public class EnemyRobot extends Point2D.Double{
 	public EnemyRobot() {
 		reset();
 	}
-
+	
+	
+	
 	public EnemyRobot(ScannedRobotEvent event) {
 		this.update(event);
 		if(event.getEnergy()<=100)this.leader=true;
@@ -94,6 +96,24 @@ public class EnemyRobot extends Point2D.Double{
 		if(event.getEnergy()<=100)this.leader=true;
 		else this.leader=false;
 		this.isTeammate = team;
+	}
+	public EnemyRobot(MessageEvent event, RobotState state) {
+		this.update(event,state);
+		if(this.getEnergy()<=100)this.leader=true;
+		else this.leader=false;
+	}
+	public void update(MessageEvent event,RobotState state) {
+		EnemyRobot enemy = ((EnemyRobot)event.getMessage());
+		this.setX(enemy.getX());
+		this.setY(enemy.getY());
+		this.bearing = enemy.getBearing();//ajeitar
+		this.velocity = enemy.getVelocity();
+		this.energy = enemy.getEnergy();
+		this.heading = enemy.getHeading();
+		this.name = enemy.getName();
+		this.setDistance(state.getX(),state.getY());
+		//this.bearing = 
+
 	}
 	
 	public void update(ScannedRobotEvent event, RobotState state) {
