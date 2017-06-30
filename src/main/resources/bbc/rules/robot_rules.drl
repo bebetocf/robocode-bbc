@@ -25,24 +25,6 @@ declare Target
 	name: String
 end
 
-
-
-
-// Storing Victim's informations
-declare Victim
-   name: String
-   x: double
-   y: double
-   distance: double
-   bearing: double
-   heading: double
-   velocity: double
-   energy: double
-   time: long
-   firePower: double
-   bulletSpeed: double
-end
-
 // Storing Robot status informations
 declare Status
 	scanDirection: int
@@ -115,7 +97,7 @@ end
 rule "WHEN found a new victim, then update it."
 	salience 89
 	when
-		$scanned: ScannedRobotEvent(name not contains "time")
+		$scanned: ScannedRobotEvent(name not contains "bbc.")
 		$status : Status()
 		$state: RobotState()
 		not (exists EnemyRobot(name == $scanned.getName()))
@@ -131,10 +113,28 @@ rule "WHEN found a new victim, then update it."
   		System.out.println("Victim created."+$scanned.getName());
 end
 
+rule "WHEN found a new friend, add it to the Hash"
+	salience 89
+	when
+		$scanned: ScannedRobotEvent(name contains "bbc.")
+		$status : Status()
+		$state: RobotState()
+		not (exists EnemyRobot(name == $scanned.getName()))
+	then
+		double enemyX = Helper.enemyX($state.getX(), $state.getHeading(), $scanned.getBearing(), $scanned.getDistance());
+		double enemyY = Helper.enemyY($state.getY(), $state.getHeading(), $scanned.getBearing(), $scanned.getDistance());
+		
+		GravitationalPoint p = new GravitationalPoint(enemyX,enemyY,$scanned.getEnergy());
+		
+		EnemyPos.put($scanned.getName(),p);
+		
+  		System.out.println("Victim created."+$scanned.getName());
+end
+
 rule "WHEN new turn and detected old victim THEN update victim's informations"
 	salience 88
 	when
-		$scanned : ScannedRobotEvent()
+		$scanned: ScannedRobotEvent(name not contains "bbc.")
 		$status : Status()
 		$state : RobotState()
 		$enemy : EnemyRobot(name == $scanned.getName())
@@ -143,6 +143,25 @@ rule "WHEN new turn and detected old victim THEN update victim's informations"
 		$enemy.update( $scanned, $state );
 		
 		GravitationalPoint p = new GravitationalPoint($enemy.getX(),$enemy.getY(),$scanned.getEnergy());
+		
+		EnemyPos.put($scanned.getName(),p);
+		
+		System.out.println("Updated victim informations."+$scanned.getName());
+end
+
+rule "WHEN new turn and detected old friend THEN update friend's informations"
+	salience 88
+	when
+		$scanned: ScannedRobotEvent(name contains "bbc.")
+		$status : Status()
+		$state : RobotState()
+		$enemy : EnemyRobot(name == $scanned.getName())
+	then
+		
+		double enemyX = Helper.enemyX($state.getX(), $state.getHeading(), $scanned.getBearing(), $scanned.getDistance());
+		double enemyY = Helper.enemyY($state.getY(), $state.getHeading(), $scanned.getBearing(), $scanned.getDistance());
+		
+		GravitationalPoint p = new GravitationalPoint(enemyX,enemyY,$scanned.getEnergy());
 		
 		EnemyPos.put($scanned.getName(),p);
 		
