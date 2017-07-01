@@ -11,6 +11,14 @@ import robocode.*;
 public class EnemyRobot implements Serializable{
 	double x, y, bearing, energy, velocity, heading, distance;
 	String name;
+	@Override
+	public String toString() {
+		String ans="EnemyRobot(name= "+name +", time= "+ time+", x= "+ x+", y= "+ y +", energy= "+ energy +", velocity= "+ velocity +", heading= "+ heading +", diatance= "+ distance +")";
+		return ans;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
 	long time;
 	boolean leader;
 	boolean isTeammate = false;
@@ -82,25 +90,25 @@ public class EnemyRobot implements Serializable{
 	
 	public EnemyRobot(ScannedRobotEvent event) {
 		this.update(event);
-		if(event.getEnergy()<=100)this.leader=true;
+		if(event.getEnergy()<=100 || (event.getEnergy()>120 && event.getEnergy()<=200))this.leader=true;
 		else this.leader=false;
 	}
 	
 	public EnemyRobot(ScannedRobotEvent event, RobotState state) {
 		this.update(event, state);
-		if(event.getEnergy()<=100)this.leader=true;
+		if(this.getEnergy()<=100 || (this.getEnergy()>120 && this.getEnergy()<=200))this.leader=true;
 		else this.leader=false;
 	}
 	
 	public EnemyRobot(ScannedRobotEvent event, RobotState state, boolean team) {
 		this.update(event, state);
-		if(event.getEnergy()<=100)this.leader=true;
+		if(this.getEnergy()<=100 || (this.getEnergy()>120 && this.getEnergy()<=200))this.leader=true;
 		else this.leader=false;
 		this.isTeammate = team;
 	}
 	public EnemyRobot(MessageEvent event, RobotState state) {
 		this.update(event,state);
-		if(this.getEnergy()<=100)this.leader=true;
+		if(this.getEnergy()<=100 || (this.getEnergy()>120 && this.getEnergy()<=200))this.leader=true;
 		else this.leader=false;
 	}
 	public void update(MessageEvent event,RobotState state) {
@@ -114,6 +122,7 @@ public class EnemyRobot implements Serializable{
 		this.heading = enemy.getHeading();
 		this.name = enemy.getName();
 		this.setDistance(state.getX(),state.getY());
+		this.time=enemy.getTime();
 		//this.bearing = 
 
 	}

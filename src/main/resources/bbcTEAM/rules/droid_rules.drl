@@ -56,42 +56,46 @@ rule "WHEN a victim dies retract victim"
 	then
 		//EnemyPos.remove($dead.getName());
 	    $status.setFound($status.getFound()-1);
-		// retract($enemy);
+		//retract($enemy);
+
+		//$enemy.setName("ninguem");
 		$enemy.setDistance(100000000000.0, 100000000000.0);
 		$enemy.setX(100000000000.0);
 		$enemy.setY(100000000000.0);
 		$enemy.setLeader(false);
 end
 
-rule "WHEN a victim and target dies retract victim"
-	salience 120
-	when
-		$dead: RobotDeathEvent()
-		$status: Status()
-		$target: Target(name==$dead.getName())
-		$enemy: EnemyRobot(name==$dead.getName())
-		$enemy2: EnemyRobot(name!=$dead.getName())
-	then
-		//EnemyPos.remove($dead.getName());
-	    $status.setFound($status.getFound()-1);
-		// retract($enemy);
-		$target.setName($enemy2.getName());
-		$enemy.setDistance(100000000000.0, 100000000000.0);
-		$enemy.setX(100000000000.0);
-		$enemy.setY(100000000000.0);
-		$enemy.setLeader(false);
-end
-/*
+// rule "WHEN a victim and target dies retract victim"
+// 	salience 120
+// 	when
+// 		$dead: RobotDeathEvent()
+// 		$status: Status()
+// 		$target: Target(name==$dead.getName())
+// 		$enemy: EnemyRobot(name==$dead.getName())
+// 		$enemy2: EnemyRobot(name!=$dead.getName())
+// 	then
+// 		//EnemyPos.remove($dead.getName());
+// 	    $status.setFound($status.getFound()-1);
+// 		// retract($enemy);
+// 		$enemy.setName("ninguem");
+// 		$target.setName($enemy2.getName());
+// 		$enemy.setDistance(100000000000.0, 100000000000.0);
+// 		$enemy.setX(100000000000.0);
+// 		$enemy.setY(100000000000.0);
+// 		$enemy.setLeader(false);
+// end
+
 rule "WHEN target dies, retract target"
 	salience 118
 	when
 		
 		$target: Target()
 		not (exists EnemyRobot(name == $target.getName() ) )
+
+		enemy2: EnemyRobot(name!=$target.getName())
 	then
-		retract($target);
+		$target.setName(enemy2.getName());
 end
-*/
 
 rule "WHEN no status THEN create one"
 	salience 100
@@ -118,7 +122,7 @@ rule "WHEN found a new victim, then update it."
 		$scanned : MessageEvent()
 		$status : Status()
 		$state: RobotState()
-		not (eval((((EnemyRobot)($scanned.getMessage())).getName()).startsWith("bbc.")))
+		not (eval((((EnemyRobot)($scanned.getMessage())).getName()).startsWith("bbcTEAM")))
 		not (exists EnemyRobot(name == (((EnemyRobot)($scanned.getMessage())).getName())))
 	then
 	    $status.setFound($status.getFound()+1);
@@ -137,7 +141,7 @@ rule "WHEN new turn and detected old victim THEN update victim's informations"
 		$scanned: MessageEvent()
 		$status : Status()
 		$state : RobotState()
-		not (eval  (((EnemyRobot)($scanned.getMessage())).getName().startsWith("bbc.")))
+		not (eval  (((EnemyRobot)($scanned.getMessage())).getName().startsWith("bbcTEAM")))
 		$enemy : EnemyRobot(name == (((EnemyRobot)($scanned.getMessage())).getName()))
 	then
 		$enemy.print();
@@ -145,7 +149,6 @@ rule "WHEN new turn and detected old victim THEN update victim's informations"
 		GravitationalPoint p = new GravitationalPoint($enemy.getX(),$enemy.getY(),$enemy.getEnergy());
 		
 		EnemyPos.put($enemy.getName(),p);
-		
 		System.out.println("Updated victim informations."+ $enemy.getName());
 end
 
@@ -158,7 +161,8 @@ rule "WHEN detected closer victim than old one THEN update to new victim"
 		$enemy2 : EnemyRobot(name != $target.getName())
       	$status : Status()
       	$state : RobotState()
-		eval($enemy2.isBetter($enemy1))
+		//eval($enemy2.isBetter($enemy1))
+   		eval ($enemy2.isBetter($enemy1))
    	then
    		$target.setName($enemy2.getName());
    		update($target);
@@ -176,35 +180,7 @@ rule "WHEN new turn there is no target and there is a victim, create new target"
   		System.out.println("Victim target = "+$enemy.getName());
 end
 
-/*
-rule "WHEN detected closer victim than old one THEN update to new victim"
-	salience 87
-   	when
-		$victim : Victim()
-      	$scanned: ScannedRobotEvent()
-      	$status : Status()
-      	$state : RobotState()
-		eval($victim.getDistance() > $scanned.getDistance())
-   	then
-		$victim.setName($scanned.getName());
-		$victim.setDistance($scanned.getDistance());
-		$victim.setBearing($scanned.getBearing());
-	    $victim.setHeading($scanned.getHeading());
-	    $victim.setVelocity($scanned.getVelocity());
-	    $victim.setEnergy($scanned.getEnergy());
-		double enemyX = Helper.enemyX($status.getX(), $status.getHeading(), $scanned.getBearing(), $scanned.getDistance());
-		double enemyY = Helper.enemyY($status.getY(), $status.getHeading(), $scanned.getBearing(), $scanned.getDistance());
-		$victim.setX(enemyX);
-		$victim.setY(enemyY);
-		double firePower = Helper.firePower($scanned.getDistance());
-		$victim.setFirePower(firePower);
-		double bulletSpeed = Helper.bulletSpeed(firePower);
-		$victim.setBulletSpeed(bulletSpeed);
-		long time = Helper.time($scanned.getDistance(), bulletSpeed);
-		$victim.setTime(time);
-	    System.out.println("Closer victim detected and targetted");
-end
-*/
+
 
 // ========== AIMING RULES ==========
 
